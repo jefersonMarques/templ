@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/a-h/templ"
-	"github.com/axzilla/templui-quickstart/assets"
-	"github.com/axzilla/templui-quickstart/ui/pages"
+	"github.com/jefersonMarques/templ/assets"
+	"github.com/jefersonMarques/templ/ui/layouts"
 	"github.com/joho/godotenv"
 )
 
@@ -15,7 +15,7 @@ func main() {
 	InitDotEnv()
 	mux := http.NewServeMux()
 	SetupAssetsRoutes(mux)
-	mux.Handle("GET /", templ.Handler(pages.Landing()))
+	mux.Handle("GET /", templ.Handler(layouts.BaseLayout()))
 	fmt.Println("Server is running on http://localhost:8090")
 	http.ListenAndServe(":8090", mux)
 }

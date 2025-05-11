@@ -1,8 +1,6 @@
 package layouts
 
-import (
-	"github.com/axzilla/templui-quickstart/ui/modules"
-)
+import "github.com/jefersonMarques/templ/ui/modules"
 
 templ ThemeSwitcherScript() {
 	{{ handle := templ.NewOnceHandle() }}
@@ -34,18 +32,33 @@ templ BaseLayout() {
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<!-- Tailwind CSS (output) -->
+			<title>App</title>
+			<!-- Tailwind CSS -->
 			<link href="/assets/css/output.css" rel="stylesheet"/>
 			<!-- Alpine.js -->
 			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-			<!-- Theme switcher script -->
+			<!-- Theme switcher -->
 			@ThemeSwitcherScript()
+			<!-- Go WASM runtime -->
+			<script src="/assets/js/wasm_exec.js"></script>
+			<script>
+				const go = new Go();
+				
+				WebAssembly.instantiateStreaming(fetch("/assets/main.wasm"), go.importObject)
+					.then(result => go.run(result.instance))
+					.catch(err => console.error("Erro ao carregar WASM:", err));
+			</script>
 		</head>
 		<body
 			x-data="themeHandler"
 			x-bind:class="themeClasses"
 		>
 			@modules.Navbar()
+			<!-- contêiner para o WASM preencher -->
+			<main id="app" class="p-6">
+				<!-- o WASM pode injetar HTML aqui -->
+			</main>
+			<!-- se quiser rodar children diretamente ainda pode -->
 			{ children... }
 		</body>
 	</html>

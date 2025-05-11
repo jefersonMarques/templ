@@ -22,6 +22,9 @@ tailwind-clean:
 tailwind-watch:
 	tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
 
+#wasm:
+#	GOOS=js GOARCH=wasm go build -o ./assets/main.wasm ./wasm/wasm_main.go
+
 # Start development server
 dev:
 	make tailwind-clean

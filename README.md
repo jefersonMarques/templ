@@ -1,69 +1,75 @@
-# templUI Quickstart
 
-Get started with templUI, an enterprise-ready UI component library for Go and templ. This template provides a pre-configured setup for building professional web applications with templUI components.
+# 🧩 WebAssembly Templ UI – Go + Templ + Alpine.js (WASM Frontend)
 
-## Installation
+Este projeto é uma aplicação experimental que utiliza **Go** compilado para **WebAssembly (WASM)**, com **Templ** para renderização de componentes HTML e **Alpine.js** para interatividade leve no navegador — sem uso de frameworks JS pesados como React, Vue ou Angular. Todo o conteúdo da interface é gerado dinamicamente no **navegador**, via `.wasm`, e injetado diretamente no DOM.
 
-For installation instructions, visit our [documentation](https://templui.io/docs/how-to-use#requirements).
+## 🚀 Tecnologias Utilizadas
 
-## Setup
+- **Go** – linguagem principal do projeto, usada tanto no backend quanto no frontend via WASM.
+- **Templ** – engine de templates moderna, tipada e integrada com o compilador Go.
+- **WebAssembly (GOOS=js GOARCH=wasm)** – transforma o frontend em um binário `.wasm` que roda no navegador.
+- **Alpine.js** – adiciona reatividade leve e controle de interface.
+- **TailwindCSS** – para estilização rápida e moderna baseada em utilitários.
 
-1. **Clone the Repository**
+## 📁 Estrutura do Projeto
 
-   ```bash
-   git clone https://github.com/axzilla/templui-quickstart.git
-   cd templui-quickstart
+A estrutura do projeto é dividida entre arquivos de interface (UI), servidor HTTP, recursos estáticos e o módulo WebAssembly:
+
+- `assets/`: arquivos estáticos como CSS, wasm_exec.js e o main.wasm gerado.
+- `ui/layouts/`: contém o layout base da aplicação (HTML shell).
+- `ui/modules/`: componentes reutilizáveis como Navbar, Footer, etc.
+- `ui/pages/`: páginas individuais como Landing.
+- `wasm/`: código Go compilado em WebAssembly.
+- `main.go`: servidor HTTP responsável por servir o HTML e os assets.
+- `Makefile`: automatização das etapas de build.
+- `go.mod`: gerenciamento de dependências.
+
+## ⚙️ Como Rodar Localmente
+
+1. Instale as dependências:
+   - Go 1.21+ instalado
+   - CLI do Templ: `go install github.com/a-h/templ/cmd/templ@latest`
+
+2. Gere os arquivos Templ:
+   ```
+   templ generate
    ```
 
-2. **Install Dependencies**
-
-   ```bash
-   go mod tidy
+3. Compile o WebAssembly:
+   ```
+   GOOS=js GOARCH=wasm go build -o ./assets/main.wasm ./wasm/wasm_main.go
    ```
 
-3. **Configure Tailwind**
-   Since we're using templUI as a package, you need to configure Tailwind to process its components:
-
-   a. Get your Go path:
-
-   ```bash
-   go env GOPATH
+4. Rode o servidor:
+   ```
+   go run main.go
    ```
 
-   b. Add the path to your `assets/css/input.css` content array:
+Abra o navegador em [http://localhost:8090](http://localhost:8090) para visualizar a aplicação.
 
-   ```js
-   @source "${GOPATH}/pkg/mod/github.com/axzilla/templui@*/**/*.{go,templ}";
-   ```
+## 🧠 Como Funciona
 
-## Development
+- O servidor Go responde com um HTML base (`BaseLayout`) que inclui um `#app`.
+- O navegador carrega `wasm_exec.js` e executa `main.wasm`.
+- O WebAssembly (Go) renderiza o conteúdo HTML via Templ e injeta diretamente no DOM.
+- A navegação e comunicação entre componentes pode ser feita com Alpine.js ou chamadas diretas via Go (exportando funções para o `window`).
 
-Start the development server with hot reload:
+## 🔧 Exemplo de Injeção via WASM
 
-```bash
-make dev
+```go
+var buf bytes.Buffer
+_ = pages.Landing().Render(context.Background(), &buf)
+js.Global().Get("document").Call("getElementById", "app").Set("innerHTML", buf.String())
 ```
 
-Your application will be running at [http://localhost:7331](http://localhost:7331)
+## ✅ Benefícios
 
-## Deployment
+- Aplicação 100% dinâmica no frontend com performance nativa.
+- Nenhum framework JS pesado.
+- Componentes reativos com Alpine.js.
+- Total controle do DOM com segurança de tipos em Go.
+- Preparado para evoluir para SPA completa com rotas, formulários, plugins e muito mais.
 
-This template includes a production-ready Dockerfile for easy deployment:
+## 📄 Licença
 
-```bash
-# Build the image
-docker build -t templui-app .
-
-# Run the container
-docker run -p 8090:8090 templui-app
-```
-
-Your application will be available at `http://localhost:8090`
-
-## Contributing
-
-Issues and pull requests are welcome! Please read our [contributing guidelines](https://github.com/axzilla/templui/blob/main/CONTRIBUTING.md) before submitting a pull request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT © Jeferson Rafael Marques
